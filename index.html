@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaflet Map Example</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+   crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+   crossorigin=""></script>
+   <style>
+      #mapid {
+        height: 1800px;
+      }
+
+      .leaflet-div-icon {
+        background: transparent;
+        border: none;
+      }
+
+      .leaflet-marker-icon .number {
+        position: relative;
+        top: -70px;
+        font-size: 20px;
+        font-weight: bold;
+        width: 25px;
+        text-align: center;
+        color: darkblue;
+      }
+   </style>
+</head>
+<body>
+  <div id="mapid"></div>
+  <script>
+    ACCESS_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+		MB_ATTR = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+		MB_URL = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + ACCESS_TOKEN;
+		OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+		OSM_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+    var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+
+    var mymap = L.map('mapid').setView([49.345, 23.506], 16)
+      .addLayer(osm);
+
+    // MORE SIMPLISTIC LAYER INSTEAD OF OSM
+
+    // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    //   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    //   maxZoom: 18,
+    //   id: 'mapbox/streets-v11',
+    //   tileSize: 512,
+    //   zoomOffset: -1,
+    //   accessToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
+    // }).addTo(mymap);
+
+    
+    // POPUPS STYLE
+
+    L.NumberedDivIcon = L.Icon.extend({
+      options: {
+      iconUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-icon.png',
+      number: '',
+      shadowUrl: null,
+      iconSize: new L.Point(25, 41),
+      iconAnchor: new L.Point(13, 41),
+      popupAnchor: new L.Point(0, -33),
+      /*
+      iconAnchor: (Point)
+      popupAnchor: (Point)
+      */
+      className: 'leaflet-div-icon'
+    },
+
+    createIcon: function () {
+      var div = document.createElement('div');
+      var img = this._createImg(this.options['iconUrl']);
+      var numdiv = document.createElement('div');
+      numdiv.setAttribute ( "class", "number" );
+      numdiv.innerHTML = this.options['number'] || '';
+      div.appendChild ( img );
+      div.appendChild ( numdiv );
+      this._setIconStyles(div, 'icon');
+      return div;
+    },
+
+    //you could change this to add a shadow like in the normal marker if you really wanted
+    createShadow: function () {
+      return null;
+    }
+    });
+
+    // PLACES
+
+    var latlngs = [
+      [49.351044, 23.506515], // Rynok
+      [49.348528, 23.497353], // Salt museum
+      [49.353322, 23.500807], // theatre
+      [49.359919, 23.516879], // Liberty park
+    ];
+    
+    // MARKERS
+
+    var popup = L.popup()
+      .setLatLng(latlngs[1])
+      .setContent("Salt museum popup.")
+      .openOn(mymap);
+
+    const marker1 = L.marker(latlngs[0]).addTo(mymap);
+    marker1.bindPopup("<b>Rynok square</b><br>I am a popup.");
+
+    const marker2 = L.marker(latlngs[3]).addTo(mymap);
+
+    var marker3 = new L.Marker(new L.LatLng(...latlngs[2]), {
+      icon: new L.NumberedDivIcon({number: '12'})
+    });
+    marker3.addTo(mymap);
+
+    // PATHS
+
+    var polyline = L.polyline(latlngs, {color: 'grey'}).addTo(mymap);
+
+    // DEBUG TOOL TO GET COORDINATES ON CLICK
+
+    function onMapClick(e) {
+      console.log("You clicked the map at " + e.latlng);
+    }
+
+    mymap.on('click', onMapClick);
+  </script>
+</body>
+</html>
